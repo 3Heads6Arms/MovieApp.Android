@@ -26,6 +26,7 @@ public class MoviesActivity extends AppCompatActivity {
 
         mMoviesRv.setLayoutManager(mLayoutManager);
         mMoviesRv.setAdapter(mMoviesAdapter);
+        mMoviesRv.setHasFixedSize(true);
 
         String[] movies = {
                 "Resident Evil",
