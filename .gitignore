@@ -43,7 +43,6 @@ proguard/
 captures/
 
 # Intellij
-*.iml
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/libraries
@@ -52,9 +51,7 @@ captures/
 *.jks
 
 # External native build folder generated in Android Studio 2.2 and later
-.externalNativeBuild
 ### Java template
-*.class
 
 # BlueJ files
 *.ctxt
@@ -70,7 +67,6 @@ captures/
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 ### Gradle template
-.gradle
 /build/
 
 # Ignore Gradle GUI config
@@ -84,7 +80,3 @@ gradle-app.setting
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
-
-app/libs/
-app/src/main/java/
-app/src/main/res/drawable/
