@@ -24,7 +24,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
-        holder.mMovieTitleTv.setText(mMovieData[position]);
+//        holder.mMovieTitleTv.setText(mMovieData[position]);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         public MovieViewHolder(View itemView) {
             super(itemView);
 
-            mMovieTitleTv = (TextView) itemView.findViewById(R.id.tv_movie_title);
+            mMovieTitleTv = (TextView) itemView.findViewById(R.id.tv_title);
         }
     }
 }

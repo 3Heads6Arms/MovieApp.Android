@@ -31,6 +31,20 @@ public class MoviesActivity extends AppCompatActivity {
         String[] movies = {
                 "Resident Evil",
                 "Superman",
+                "Resident Evil",
+                "Superman",
+                "Resident Evil",
+                "Superman",
+                "Resident Evil",
+                "Superman",
+                "Resident Evil",
+                "Superman",
+                "Resident Evil",
+                "Superman",
+                "Resident Evil",
+                "Superman",
+                "Resident Evil",
+                "Superman",
                 "The Conjuring"
         };
 
