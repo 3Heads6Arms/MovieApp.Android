@@ -16,6 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
+
 // Singleton to keep our call from one instance
 public final class MoviesApiService {
     private interface MovieApi {
@@ -24,6 +25,7 @@ public final class MoviesApiService {
     }
 
     private final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
+    public String apiKey = "";
     private static final String MOVIE_POSTER_URL = "http://image.tmdb.org/t/p/";
     private static MoviesApiService moviesApiService;
 
@@ -39,17 +41,32 @@ public final class MoviesApiService {
         mMovieApi = mRetrofit.create(MovieApi.class);
     }
 
+    /**
+     * Performs asynchronous request to server using background thread
+     * @param callback - Callback functions that will be invoked when request is done.
+     *                 Can contain result or error from the request.
+     */
     public void discoverMovies(Callback<RequestResult<Movie>> callback) {
-        mMovieApi.discoverMovies("5d70e3447b10f44c50bdf7e55e436fea")
+        mMovieApi.discoverMovies(apiKey)
                 .enqueue(callback);
     }
 
     // TODO: Make size varies
+
+    /**
+     * Constructs full url to image server
+     * @param path - Relative path to the image
+     * @return full path to the image
+     */
     public static String getMovieImageUrl(String path) {
         String url = String.format("%s%s%s", MOVIE_POSTER_URL, MoviePosterSizeEnum.w185, path);
         return url;
     }
 
+    /**
+     * Get instance of API helper class
+     * @return instance of api helper class
+     */
     public static MoviesApiService getService() {
         if (moviesApiService == null) {
             moviesApiService = new MoviesApiService();
