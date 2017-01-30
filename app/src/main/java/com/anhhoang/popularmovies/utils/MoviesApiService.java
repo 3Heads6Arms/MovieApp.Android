@@ -51,14 +51,13 @@ public final class MoviesApiService {
                 .enqueue(callback);
     }
 
-    // TODO: Make size varies
-
     /**
      * Constructs full url to image server
      * @param path - Relative path to the image
      * @return full path to the image
      */
     public static String getMovieImageUrl(String path) {
+        // TODO: Make size varies
         String url = String.format("%s%s%s", MOVIE_POSTER_URL, MoviePosterSizeEnum.w185, path);
         return url;
     }
