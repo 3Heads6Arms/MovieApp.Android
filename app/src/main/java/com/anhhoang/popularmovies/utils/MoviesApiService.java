@@ -22,6 +22,12 @@ public final class MoviesApiService {
     private interface MovieApi {
         @GET("discover/movie")
         Call<RequestResult<Movie>> discoverMovies(@Query("api_key") String apiKey);
+
+        @GET("movie/popular")
+        Call<RequestResult<Movie>> getMoviesByPopularity(@Query("api_key") String apiKey);
+
+        @GET("movie/top_rated")
+        Call<RequestResult<Movie>> getMoviesByTopRating(@Query("api_key") String apiKey);
     }
 
     private final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
@@ -42,7 +48,8 @@ public final class MoviesApiService {
     }
 
     /**
-     * Performs asynchronous request to server using background thread
+     * Asynchronously get list of movies
+     *
      * @param callback - Callback functions that will be invoked when request is done.
      *                 Can contain result or error from the request.
      */
@@ -52,7 +59,30 @@ public final class MoviesApiService {
     }
 
     /**
+     * Asynchronously get list of movies by their popularity
+     *
+     * @param callback - Callback functions that will be invoked when request is done.
+     *                 Can contain result or error from the request.
+     */
+    public void getMoviesByPopularity(Callback<RequestResult<Movie>> callback) {
+        mMovieApi.getMoviesByPopularity(apiKey)
+                .enqueue(callback);
+    }
+
+    /**
+     * Asynchronously get list of movies by their top rating
+     *
+     * @param callback - Callback functions that will be invoked when request is done.
+     *                 Can contain result or error from the request.
+     */
+    public void getMoviesByTopRating(Callback<RequestResult<Movie>> callback) {
+        mMovieApi.getMoviesByTopRating(apiKey)
+                .enqueue(callback);
+    }
+
+    /**
      * Constructs full url to image server
+     *
      * @param path - Relative path to the image
      * @return full path to the image
      */
@@ -64,6 +94,7 @@ public final class MoviesApiService {
 
     /**
      * Get instance of API helper class
+     *
      * @return instance of api helper class
      */
     public static MoviesApiService getService() {

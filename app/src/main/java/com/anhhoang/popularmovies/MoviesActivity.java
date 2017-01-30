@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.anhhoang.popularmovies.data.Movie;
 import com.anhhoang.popularmovies.data.RequestResult;
@@ -26,6 +28,20 @@ public class MoviesActivity extends AppCompatActivity {
     private RecyclerView mMoviesRv;
     private MoviesApiService mMoviesApiService;
 
+    private Callback<RequestResult<Movie>> mMoviesRequestCallback = new Callback<RequestResult<Movie>>() {
+        @Override
+        public void onResponse(Call<RequestResult<Movie>> call, Response<RequestResult<Movie>> response) {
+            List<Movie> movieData = response.body().getResults();
+
+            mMoviesAdapter.setMovieData(movieData);
+        }
+
+        @Override
+        public void onFailure(Call<RequestResult<Movie>> call, Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,18 +55,27 @@ public class MoviesActivity extends AppCompatActivity {
         mMoviesRv.setAdapter(mMoviesAdapter);
 
         mMoviesApiService = MoviesApiService.getService();
-        mMoviesApiService.discoverMovies(new Callback<RequestResult<Movie>>() {
-            @Override
-            public void onResponse(Call<RequestResult<Movie>> call, Response<RequestResult<Movie>> response) {
-                List<Movie> movieData = response.body().getResults();
+        mMoviesApiService.discoverMovies(mMoviesRequestCallback);
+    }
 
-                mMoviesAdapter.setMovieData(movieData);
-            }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.movies_menu, menu);
+        return true;
+    }
 
-            @Override
-            public void onFailure(Call<RequestResult<Movie>> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.action_sort_popularity) {
+            mMoviesApiService.getMoviesByPopularity(mMoviesRequestCallback);
+            return true;
+        } else if (itemId == R.id.action_sort_top_rated) {
+            mMoviesApiService.getMoviesByTopRating(mMoviesRequestCallback);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
