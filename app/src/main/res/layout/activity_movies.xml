@@ -15,4 +15,11 @@
         app:layoutManager="android.support.v7.widget.GridLayoutManager"
         app:spanCount="2"
         tools:listitem="@layout/movie_item_view" />
+
+    <ProgressBar
+        android:id="@+id/pb_loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="invisible" />
 </FrameLayout>

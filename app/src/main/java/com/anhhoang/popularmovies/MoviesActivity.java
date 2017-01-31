@@ -10,6 +10,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.anhhoang.popularmovies.data.Movie;
 import com.anhhoang.popularmovies.data.RequestResult;
@@ -26,18 +28,24 @@ public class MoviesActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
 
     private RecyclerView mMoviesRv;
+    private ProgressBar mLoadingIndicatorPb;
+
     private MoviesApiService mMoviesApiService;
 
     private Callback<RequestResult<Movie>> mMoviesRequestCallback = new Callback<RequestResult<Movie>>() {
         @Override
         public void onResponse(Call<RequestResult<Movie>> call, Response<RequestResult<Movie>> response) {
-            List<Movie> movieData = response.body().getResults();
+            mLoadingIndicatorPb.setVisibility(View.INVISIBLE);
+            if (response.body() != null) {
+                List<Movie> movieData = response.body().getResults();
 
-            mMoviesAdapter.setMovieData(movieData);
+                mMoviesAdapter.setMovieData(movieData);
+            }
         }
 
         @Override
         public void onFailure(Call<RequestResult<Movie>> call, Throwable t) {
+            mLoadingIndicatorPb.setVisibility(View.INVISIBLE);
             t.printStackTrace();
         }
     };
@@ -48,13 +56,16 @@ public class MoviesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movies);
 
         mMoviesRv = (RecyclerView) findViewById(R.id.rv_movies);
+        mLoadingIndicatorPb = (ProgressBar) findViewById(R.id.pb_loading_indicator);
+
         mLayoutManager = new GridLayoutManager(this, 2);
         mMoviesAdapter = new MoviesAdapter(this);
 
         mMoviesRv.setLayoutManager(mLayoutManager);
         mMoviesRv.setAdapter(mMoviesAdapter);
-
         mMoviesApiService = MoviesApiService.getService();
+
+        mLoadingIndicatorPb.setVisibility(View.VISIBLE);
         mMoviesApiService.discoverMovies(mMoviesRequestCallback);
     }
 
@@ -68,10 +79,15 @@ public class MoviesActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
 
+        // Clear up adapter's data and shows progress bar
         if (itemId == R.id.action_sort_popularity) {
+            mLoadingIndicatorPb.setVisibility(View.VISIBLE);
+            mMoviesAdapter.setMovieData(null);
             mMoviesApiService.getMoviesByPopularity(mMoviesRequestCallback);
             return true;
         } else if (itemId == R.id.action_sort_top_rated) {
+            mLoadingIndicatorPb.setVisibility(View.VISIBLE);
+            mMoviesAdapter.setMovieData(null);
             mMoviesApiService.getMoviesByTopRating(mMoviesRequestCallback);
             return true;
         }
