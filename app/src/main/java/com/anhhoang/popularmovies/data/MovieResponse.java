@@ -10,17 +10,17 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class RequestResult<T> {
+public class MovieResponse<T> {
     @SerializedName("page")
-    private int page;
+    private Integer page;
     @SerializedName("results")
     private List<T> results;
     @SerializedName("total_results")
-    private int totalResults;
+    private Integer totalResults;
     @SerializedName("total_pages")
-    private int totalPages;
+    private Integer totalPages;
 
-    public int getPage() {
+    public Integer getPage() {
         return page;
     }
 
@@ -28,11 +28,11 @@ public class RequestResult<T> {
         return results;
     }
 
-    public int getTotalResults() {
+    public Integer getTotalResults() {
         return totalResults;
     }
 
-    public int getTotalPages() {
+    public Integer getTotalPages() {
         return totalPages;
     }
 }

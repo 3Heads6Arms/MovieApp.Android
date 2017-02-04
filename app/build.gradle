@@ -17,6 +17,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        buildTypes.each {
+            // TODO: add MovieApiKey="yourkey" to gradle.properties to test
+            it.buildConfigField('String', 'MOVIE_API_KEY', MovieApiKey)
+        }
     }
 }
 

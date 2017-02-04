@@ -13,17 +13,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.anhhoang.popularmovies.data.Movie;
+import com.anhhoang.popularmovies.utils.MoviePosterSizeEnum;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
+
+    public interface OnMovieItemClickListener {
+        void onClick(Movie movie);
+    }
+
     private List<Movie> mMovieData;
     private Context mContext;
+    private OnMovieItemClickListener mOnClickListener;
 
-    public MoviesAdapter(Context context) {
+    public MoviesAdapter(Context context, OnMovieItemClickListener clickListener) {
         mContext = context;
+        mOnClickListener = clickListener;
     }
 
     @Override
@@ -38,15 +46,17 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
         Movie movie = mMovieData.get(position);
-        String posterUrl = MoviesApiService.getMovieImageUrl(movie.getPosterPath());
 
         holder.mTitleTv.setText(movie.getTitle());
         holder.mRateTv.setText(String.valueOf(movie.getVoteAverage()));
 
-        Glide.with(mContext)
-                .load(posterUrl)
-                .fitCenter()
-                .into(holder.mPosterIv);
+        if(movie.getPosterPath() != null) {
+            String posterUrl = MoviesApiService.getMovieImageUrl(movie.getPosterPath(), MoviePosterSizeEnum.w185);
+            Glide.with(mContext)
+                    .load(posterUrl)
+                    .fitCenter()
+                    .into(holder.mPosterIv);
+        }
     }
 
     @Override
@@ -59,7 +69,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         notifyDataSetChanged();
     }
 
-    public class MovieViewHolder extends RecyclerView.ViewHolder {
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ImageView mPosterIv;
         public TextView mTitleTv;
         public TextView mRateTv;
@@ -70,6 +80,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
             mPosterIv = (ImageView) itemView.findViewById(R.id.iv_poster);
             mTitleTv = (TextView) itemView.findViewById(R.id.tv_title);
             mRateTv = (TextView) itemView.findViewById(R.id.tv_rate);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            Movie movie = mMovieData.get(position);
+
+            mOnClickListener.onClick(movie);
         }
     }
 }

@@ -4,6 +4,7 @@
 
 package com.anhhoang.popularmovies;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -14,7 +15,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.anhhoang.popularmovies.data.Movie;
-import com.anhhoang.popularmovies.data.RequestResult;
+import com.anhhoang.popularmovies.data.MovieResponse;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 
 import java.util.List;
@@ -31,10 +32,18 @@ public class MoviesActivity extends AppCompatActivity {
     private ProgressBar mLoadingIndicatorPb;
 
     private MoviesApiService mMoviesApiService;
-
-    private Callback<RequestResult<Movie>> mMoviesRequestCallback = new Callback<RequestResult<Movie>>() {
+    private MoviesAdapter.OnMovieItemClickListener mOnClickListener = new MoviesAdapter.OnMovieItemClickListener() {
         @Override
-        public void onResponse(Call<RequestResult<Movie>> call, Response<RequestResult<Movie>> response) {
+        public void onClick(Movie movie) {
+            Intent movieDetailIntent = new Intent(MoviesActivity.this, MovieDetailActivity.class);
+            movieDetailIntent.putExtra(MovieDetailActivity.MOVIE_DATA, movie);
+            startActivity(movieDetailIntent);
+        }
+    };
+
+    private Callback<MovieResponse<Movie>> mMoviesRequestCallback = new Callback<MovieResponse<Movie>>() {
+        @Override
+        public void onResponse(Call<MovieResponse<Movie>> call, Response<MovieResponse<Movie>> response) {
             mLoadingIndicatorPb.setVisibility(View.INVISIBLE);
             if (response.body() != null) {
                 List<Movie> movieData = response.body().getResults();
@@ -44,7 +53,7 @@ public class MoviesActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(Call<RequestResult<Movie>> call, Throwable t) {
+        public void onFailure(Call<MovieResponse<Movie>> call, Throwable t) {
             mLoadingIndicatorPb.setVisibility(View.INVISIBLE);
             t.printStackTrace();
         }
@@ -59,7 +68,7 @@ public class MoviesActivity extends AppCompatActivity {
         mLoadingIndicatorPb = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         mLayoutManager = new GridLayoutManager(this, 2);
-        mMoviesAdapter = new MoviesAdapter(this);
+        mMoviesAdapter = new MoviesAdapter(this, mOnClickListener);
 
         mMoviesRv.setLayoutManager(mLayoutManager);
         mMoviesRv.setAdapter(mMoviesAdapter);
