@@ -29,6 +29,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     public static final String MOVIE_DATA = "MovieExtraData";
 
     private ImageView mBackDropIv;
+    private ImageView mPosterIv;
     private TextView mRateTv;
     private TextView mGenresTv;
     private TextView mStatusAndReleaseDateTv;
@@ -54,6 +55,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_detail);
 
         mBackDropIv = (ImageView) findViewById(R.id.iv_backdrop);
+        mPosterIv = (ImageView) findViewById(R.id.iv_poster);
         mGenresTv = (TextView) findViewById(R.id.tv_genres);
         mRateTv = (TextView) findViewById(R.id.tv_rate);
         mStatusAndReleaseDateTv = (TextView) findViewById(R.id.tv_release_date);
@@ -78,11 +80,20 @@ public class MovieDetailActivity extends AppCompatActivity {
         mRateTv.setText(rate);
 
         if (mMovie.getBackdropPath() != null) {
-            String posterUrl = MoviesApiService.getMovieImageUrl(mMovie.getBackdropPath(), MoviePosterSizeEnum.w342);
+            String backdropUrl = MoviesApiService.getMovieImageUrl(mMovie.getBackdropPath(), MoviePosterSizeEnum.w342);
+            Glide.with(this)
+                    .load(backdropUrl)
+                    .fitCenter()
+                    .into(mBackDropIv);
+        }
+
+        if (mMovie.getPosterPath() != null) {
+            String posterUrl = MoviesApiService.getMovieImageUrl(mMovie.getPosterPath(), MoviePosterSizeEnum.w92);
+
             Glide.with(this)
                     .load(posterUrl)
                     .fitCenter()
-                    .into(mBackDropIv);
+                    .into(mPosterIv);
         }
 
         MoviesApiService.getService()
