@@ -68,6 +68,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
     }
 
+    // Extracted data loading for better code reading
     private void loadData() {
         ActionBar actionBar = getSupportActionBar();
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");

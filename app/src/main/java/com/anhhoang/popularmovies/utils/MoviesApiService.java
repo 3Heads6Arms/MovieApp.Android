@@ -29,9 +29,6 @@ public final class MoviesApiService {
      * Retrofit Api Definition
      */
     private interface MovieApi {
-        @GET("discover/movie")
-        Call<MovieResponse<Movie>> discoverMovies(@Query("api_key") String apiKey);
-
         @GET("movie/popular")
         Call<MovieResponse<Movie>> getMoviesByPopularity(@Query("api_key") String apiKey);
 
@@ -56,17 +53,6 @@ public final class MoviesApiService {
                 .build();
 
         mMovieApi = mRetrofit.create(MovieApi.class);
-    }
-
-    /**
-     * Asynchronously get list of movies
-     *
-     * @param callback - Callback that will be invoked when request is done.
-     *                 Can contain result or error from the request.
-     */
-    public void discoverMovies(Callback<MovieResponse<Movie>> callback) {
-        mMovieApi.discoverMovies(BuildConfig.MOVIE_API_KEY)
-                .enqueue(callback);
     }
 
     /**

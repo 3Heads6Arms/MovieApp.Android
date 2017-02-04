@@ -75,7 +75,7 @@ public class MoviesActivity extends AppCompatActivity {
         mMoviesApiService = MoviesApiService.getService();
 
         mLoadingIndicatorPb.setVisibility(View.VISIBLE);
-        mMoviesApiService.discoverMovies(mMoviesRequestCallback);
+        mMoviesApiService.getMoviesByPopularity(mMoviesRequestCallback);
     }
 
     @Override
