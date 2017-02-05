@@ -19,6 +19,9 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
 
     public interface OnMovieItemClickListener {
@@ -50,7 +53,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         holder.mTitleTv.setText(movie.getTitle());
         holder.mRateTv.setText(String.valueOf(movie.getVoteAverage()));
 
-        if(movie.getPosterPath() != null) {
+        if (movie.getPosterPath() != null) {
             String posterUrl = MoviesApiService.getMovieImageUrl(movie.getPosterPath(), MoviePosterSizeEnum.w185);
             Glide.with(mContext)
                     .load(posterUrl)
@@ -70,16 +73,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        @BindView(R.id.iv_poster)
         public ImageView mPosterIv;
+        @BindView(R.id.tv_title)
         public TextView mTitleTv;
+        @BindView(R.id.tv_rate)
         public TextView mRateTv;
 
         public MovieViewHolder(View itemView) {
             super(itemView);
-
-            mPosterIv = (ImageView) itemView.findViewById(R.id.iv_poster);
-            mTitleTv = (TextView) itemView.findViewById(R.id.tv_title);
-            mRateTv = (TextView) itemView.findViewById(R.id.tv_rate);
+            ButterKnife.bind(this, itemView);
 
             itemView.setOnClickListener(this);
         }
