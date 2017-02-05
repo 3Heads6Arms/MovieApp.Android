@@ -86,6 +86,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             Glide.with(this)
                     .load(backdropUrl)
                     .fitCenter()
+                    .placeholder(R.drawable.ic_poster_placeholder)
+                    .error(R.drawable.ic_broken_image)
                     .into(mBackDropIv);
         }
 
@@ -95,6 +97,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             Glide.with(this)
                     .load(posterUrl)
                     .fitCenter()
+                    .placeholder(R.drawable.ic_poster_placeholder)
+                    .error(R.drawable.ic_broken_image)
                     .into(mPosterIv);
         }
 

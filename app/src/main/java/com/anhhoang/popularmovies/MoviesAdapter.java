@@ -16,6 +16,9 @@ import com.anhhoang.popularmovies.data.Movie;
 import com.anhhoang.popularmovies.utils.MoviePosterSizeEnum;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import java.util.List;
 
@@ -57,7 +60,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
             String posterUrl = MoviesApiService.getMovieImageUrl(movie.getPosterPath(), MoviePosterSizeEnum.w185);
             Glide.with(mContext)
                     .load(posterUrl)
-                    .fitCenter()
+                    .placeholder(R.drawable.ic_poster_placeholder)
+                    .error(R.drawable.ic_broken_image)
                     .into(holder.mPosterIv);
         }
     }
