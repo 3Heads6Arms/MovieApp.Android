@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.anhhoang.popularmovies.data.Genre;
 import com.anhhoang.popularmovies.data.GenreResponse;
 import com.anhhoang.popularmovies.data.Movie;
-import com.anhhoang.popularmovies.data.MovieResponse;
 import com.anhhoang.popularmovies.utils.MoviePosterSizeEnum;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 import com.bumptech.glide.Glide;
@@ -21,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,12 +29,18 @@ import retrofit2.Response;
 public class MovieDetailActivity extends AppCompatActivity {
     public static final String MOVIE_DATA = "MovieExtraData";
 
-    private ImageView mBackDropIv;
-    private ImageView mPosterIv;
-    private TextView mRateTv;
-    private TextView mGenresTv;
-    private TextView mStatusAndReleaseDateTv;
-    private TextView mOverviewTv;
+    @BindView(R.id.iv_backdrop)
+    ImageView mBackDropIv;
+    @BindView(R.id.iv_poster)
+    ImageView mPosterIv;
+    @BindView(R.id.tv_rate)
+    TextView mRateTv;
+    @BindView(R.id.tv_genres)
+    TextView mGenresTv;
+    @BindView(R.id.tv_release_date)
+    TextView mReleaseDateTv;
+    @BindView(R.id.tv_overview)
+    TextView mOverviewTv;
 
     private Movie mMovie;
     private Callback<GenreResponse> callback = new Callback<GenreResponse>() {
@@ -53,13 +60,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
-
-        mBackDropIv = (ImageView) findViewById(R.id.iv_backdrop);
-        mPosterIv = (ImageView) findViewById(R.id.iv_poster);
-        mGenresTv = (TextView) findViewById(R.id.tv_genres);
-        mRateTv = (TextView) findViewById(R.id.tv_rate);
-        mStatusAndReleaseDateTv = (TextView) findViewById(R.id.tv_release_date);
-        mOverviewTv = (TextView) findViewById(R.id.tv_overview);
+        ButterKnife.bind(this);
 
         Intent intent = getIntent();
         if (intent.hasExtra(MOVIE_DATA)) {
@@ -76,7 +77,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         actionBar.setTitle(mMovie.getTitle());
 
-        mStatusAndReleaseDateTv.setText(dateFormat.format(mMovie.getReleaseDate()));
+        mReleaseDateTv.setText(dateFormat.format(mMovie.getReleaseDate()));
         mOverviewTv.setText(mMovie.getOverview());
         mRateTv.setText(rate);
 
@@ -85,6 +86,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             Glide.with(this)
                     .load(backdropUrl)
                     .fitCenter()
+                    .placeholder(R.drawable.ic_poster_placeholder)
+                    .error(R.drawable.ic_broken_image)
                     .into(mBackDropIv);
         }
 
@@ -94,6 +97,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             Glide.with(this)
                     .load(posterUrl)
                     .fitCenter()
+                    .placeholder(R.drawable.ic_poster_placeholder)
+                    .error(R.drawable.ic_broken_image)
                     .into(mPosterIv);
         }
 

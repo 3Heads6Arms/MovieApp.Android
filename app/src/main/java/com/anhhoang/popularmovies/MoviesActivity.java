@@ -20,6 +20,8 @@ import com.anhhoang.popularmovies.utils.MoviesApiService;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,10 +30,12 @@ public class MoviesActivity extends AppCompatActivity {
     private MoviesAdapter mMoviesAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private RecyclerView mMoviesRv;
+    @BindView(R.id.rv_movies)
+    RecyclerView mMoviesRv;
     private ProgressBar mLoadingIndicatorPb;
 
     private MoviesApiService mMoviesApiService;
+
     private MoviesAdapter.OnMovieItemClickListener mOnClickListener = new MoviesAdapter.OnMovieItemClickListener() {
         @Override
         public void onClick(Movie movie) {
@@ -40,7 +44,6 @@ public class MoviesActivity extends AppCompatActivity {
             startActivity(movieDetailIntent);
         }
     };
-
     private Callback<MovieResponse<Movie>> mMoviesRequestCallback = new Callback<MovieResponse<Movie>>() {
         @Override
         public void onResponse(Call<MovieResponse<Movie>> call, Response<MovieResponse<Movie>> response) {
@@ -63,8 +66,9 @@ public class MoviesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movies);
+        ButterKnife.setDebug(true);
+        ButterKnife.bind(this);
 
-        mMoviesRv = (RecyclerView) findViewById(R.id.rv_movies);
         mLoadingIndicatorPb = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         mLayoutManager = new GridLayoutManager(this, 2);
