@@ -1,16 +1,18 @@
 package com.anhhoang.popularmovies;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.text.TextUtils;
+import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.anhhoang.popularmovies.model.Genre;
 import com.anhhoang.popularmovies.model.GenreResponse;
 import com.anhhoang.popularmovies.model.Movie;
+import com.anhhoang.popularmovies.model.Review;
+import com.anhhoang.popularmovies.model.ReviewResponse;
 import com.anhhoang.popularmovies.utils.MoviePosterSizeEnum;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 import com.bumptech.glide.Glide;
@@ -35,23 +37,51 @@ public class MovieDetailActivity extends AppCompatActivity {
     ImageView mPosterIv;
     @BindView(R.id.tv_rate)
     TextView mRateTv;
-    @BindView(R.id.tv_genres)
-    TextView mGenresTv;
+    @BindView(R.id.rv_genres)
+    RecyclerView mGenresRv;
     @BindView(R.id.tv_release_date)
     TextView mReleaseDateTv;
     @BindView(R.id.tv_overview)
     TextView mOverviewTv;
+    @BindView(R.id.rv_reviews)
+    RecyclerView mReviewsRv;
+
+    private GenresAdapter mGenresAdapter;
+
+    private ReviewsAdapter mReviewsAdapter;
 
     private Movie mMovie;
-    private Callback<GenreResponse> callback = new Callback<GenreResponse>() {
+    private MoviesApiService mMoviesService;
+
+    private Callback<GenreResponse> genresCallback = new Callback<GenreResponse>() {
         @Override
         public void onResponse(Call<GenreResponse> call, Response<GenreResponse> response) {
-            String genresFormatted = getFormattedGenres(mMovie.getGenreIds(), response.body().getGenres());
-            mGenresTv.setText(genresFormatted);
+            List<Genre> genres = getMovieGenres(mMovie.getGenreIds(), response.body().getGenres());
+            mGenresAdapter.setGenres(genres);
         }
 
         @Override
         public void onFailure(Call<GenreResponse> call, Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private Callback<ReviewResponse> reviewsCallback = new Callback<ReviewResponse>() {
+        @Override
+        public void onResponse(Call<ReviewResponse> call, Response<ReviewResponse> response) {
+            List<Review> reviews = response.body().getResults();
+            int totalPages = response.body().getTotalPages();
+            int currentPage = response.body().getPage();
+            int totalReviews = response.body().getTotalResults();
+
+            mReviewsAdapter.setTotalPages(totalPages);
+            mReviewsAdapter.setTotalReviews(totalReviews);
+            mReviewsAdapter.setCurrentPage(currentPage);
+            mReviewsAdapter.setReviews(reviews);
+        }
+
+        @Override
+        public void onFailure(Call<ReviewResponse> call, Throwable t) {
             t.printStackTrace();
         }
     };
@@ -61,7 +91,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
         ButterKnife.bind(this);
-
+        mMoviesService = MoviesApiService.getService();
         Intent intent = getIntent();
         if (intent.hasExtra(MOVIE_DATA)) {
             mMovie = intent.getParcelableExtra(MOVIE_DATA);
@@ -102,18 +132,24 @@ public class MovieDetailActivity extends AppCompatActivity {
                     .into(mPosterIv);
         }
 
-        MoviesApiService.getService()
-                .getGenres(callback);
+        mGenresAdapter = new GenresAdapter();
+        mGenresRv.setAdapter(mGenresAdapter);
+        mMoviesService.getGenres(genresCallback);
+
+        mReviewsAdapter = new ReviewsAdapter();
+        mReviewsRv.setAdapter(mReviewsAdapter);
+        mMoviesService.getReviews(mMovie.getId(), mReviewsAdapter.getCurrentPage() + 1, reviewsCallback);
+
     }
 
-    private String getFormattedGenres(List<Integer> genres, List<Genre> allGenres) {
-        List<String> movieGenres = new ArrayList<>();
+    private List<Genre> getMovieGenres(List<Integer> genres, List<Genre> allGenres) {
+        List<Genre> movieGenres = new ArrayList<>();
         for (Genre genre : allGenres) {
             if (genres.contains(genre.getId())) {
-                movieGenres.add(genre.getName());
+                movieGenres.add(genre);
             }
         }
 
-        return TextUtils.join(", ", movieGenres);
+        return movieGenres;
     }
 }

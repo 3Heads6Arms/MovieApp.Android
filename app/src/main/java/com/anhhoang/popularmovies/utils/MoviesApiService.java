@@ -38,10 +38,10 @@ public final class MoviesApiService {
         Call<GenreResponse> getGenres(@Query("api_key") String apiKey);
 
         @GET("movie/{movie_id}/reviews")
-        Call<ReviewResponse> getReviews(@Query("api_key") String apiKey, @Path("movie_id") int movieId, @Query("page") int page);
+        Call<ReviewResponse> getReviews(@Path("movie_id") int movieId, @Query("api_key") String apiKey, @Query("page") int page);
 
         @GET("movie/{movie_id}/videos")
-        Call<TrailerResponse> getTrailers(@Query("api_key") String apiKey, @Path("movie_id") int movieId, @Query("page") int page);
+        Call<TrailerResponse> getTrailers(@Path("movie_id") int movieId, @Query("api_key") String apiKey, @Query("page") int page);
     }
 
     private final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
@@ -84,6 +84,7 @@ public final class MoviesApiService {
 
     /**
      * Get all movie's genres.
+     *
      * @param callback - Callback to be invoked when request is done.
      *                 May contain result or error from the request.
      */
@@ -93,26 +94,28 @@ public final class MoviesApiService {
     }
 
     /**
-     *  Returns all reviews for a movie
-     * @param movieId - Id of the movie to get reviews for
-     * @param page - page of review, should be 1 first time
+     * Returns all reviews for a movie
+     *
+     * @param movieId  - Id of the movie to get reviews for
+     * @param page     - page of review, should be 1 first time
      * @param callback - Callback to be invoked when request is done.
      *                 May contain result or error from request.
      */
-    public void getReviews(int movieId, int page, Callback<ReviewResponse> callback){
-        mMovieApi.getReviews(BuildConfig.MOVIE_API_KEY, movieId, page)
+    public void getReviews(int movieId, int page, Callback<ReviewResponse> callback) {
+        mMovieApi.getReviews(movieId, BuildConfig.MOVIE_API_KEY, page)
                 .enqueue(callback);
     }
 
     /**
-     *  Returns all trailers for a movie
-     * @param movieId - Id of the movie to get trailers for
-     * @param page - page of review, should be 1 first time
+     * Returns all trailers for a movie
+     *
+     * @param movieId  - Id of the movie to get trailers for
+     * @param page     - page of review, should be 1 first time
      * @param callback - Callback to be invoked when request is done.
      *                 May contain result or error from request.
      */
-    public void getTrailers(int movieId, int page, Callback<TrailerResponse> callback){
-        mMovieApi.getTrailers(BuildConfig.MOVIE_API_KEY, movieId, page)
+    public void getTrailers(int movieId, int page, Callback<TrailerResponse> callback) {
+        mMovieApi.getTrailers(movieId, BuildConfig.MOVIE_API_KEY, page)
                 .enqueue(callback);
     }
 

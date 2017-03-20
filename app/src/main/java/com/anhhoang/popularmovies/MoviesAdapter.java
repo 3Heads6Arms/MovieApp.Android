@@ -52,6 +52,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
         holder.mTitleTv.setText(movie.getTitle());
         holder.mRateTv.setText(String.valueOf(movie.getVoteAverage()));
+        holder.itemView.setTag(movie);
 
         if (movie.getPosterPath() != null) {
             String posterUrl = MoviesApiService.getMovieImageUrl(movie.getPosterPath(), MoviePosterSizeEnum.w185);
@@ -90,8 +91,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
         @Override
         public void onClick(View v) {
-            int position = getAdapterPosition();
-            Movie movie = mMovieData.get(position);
+            Movie movie = (Movie) v.getTag();
 
             mOnClickListener.onClick(movie);
         }
