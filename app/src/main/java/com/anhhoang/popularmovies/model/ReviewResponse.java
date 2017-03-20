@@ -13,13 +13,33 @@ import java.util.List;
 
 public class ReviewResponse {
     @SerializedName("id")
-    private Integer id;
+    private int id;
     @SerializedName("page")
-    private Integer page;
+    private int page;
     @SerializedName("results")
     private List<Review> results;
     @SerializedName("total_pages")
-    private Integer totalPages;
+    private int totalPages;
     @SerializedName("total_results")
-    private Integer totalResults;
+    private int totalResults;
+
+    public int getId() {
+        return id;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public List<Review> getResults() {
+        return results;
+    }
+
+    public int getTotalPages() {
+        return totalPages;
+    }
+
+    public int getTotalResults() {
+        return totalResults;
+    }
 }
