@@ -4,7 +4,7 @@
 /**
  * Created by AnhHo on 1/29/2017.
  */
-package com.anhhoang.popularmovies.data;
+package com.anhhoang.popularmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

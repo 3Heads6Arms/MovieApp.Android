@@ -14,8 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.anhhoang.popularmovies.data.Movie;
-import com.anhhoang.popularmovies.data.MovieResponse;
+import com.anhhoang.popularmovies.model.Movie;
+import com.anhhoang.popularmovies.model.MovieResponse;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 
 import java.util.List;

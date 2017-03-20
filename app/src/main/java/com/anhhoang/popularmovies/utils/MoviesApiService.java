@@ -7,12 +7,9 @@
 package com.anhhoang.popularmovies.utils;
 
 import com.anhhoang.popularmovies.BuildConfig;
-import com.anhhoang.popularmovies.data.Genre;
-import com.anhhoang.popularmovies.data.GenreResponse;
-import com.anhhoang.popularmovies.data.Movie;
-import com.anhhoang.popularmovies.data.MovieResponse;
-
-import java.util.List;
+import com.anhhoang.popularmovies.model.GenreResponse;
+import com.anhhoang.popularmovies.model.Movie;
+import com.anhhoang.popularmovies.model.MovieResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;

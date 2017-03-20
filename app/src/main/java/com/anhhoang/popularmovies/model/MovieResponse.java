@@ -4,7 +4,7 @@
 /**
  * Created by AnhHo on 1/30/2017.
  */
-package com.anhhoang.popularmovies.data;
+package com.anhhoang.popularmovies.model;
 
 import com.google.gson.annotations.SerializedName;
 
