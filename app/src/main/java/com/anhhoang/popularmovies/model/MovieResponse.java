@@ -10,11 +10,11 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class MovieResponse<T> {
+public class MovieResponse {
     @SerializedName("page")
     private Integer page;
     @SerializedName("results")
-    private List<T> results;
+    private List<Movie> results;
     @SerializedName("total_results")
     private Integer totalResults;
     @SerializedName("total_pages")
@@ -24,7 +24,7 @@ public class MovieResponse<T> {
         return page;
     }
 
-    public List<T> getResults() {
+    public List<Movie> getResults() {
         return results;
     }
 

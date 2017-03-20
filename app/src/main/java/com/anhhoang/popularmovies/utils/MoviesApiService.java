@@ -27,10 +27,10 @@ public final class MoviesApiService {
      */
     private interface MovieApi {
         @GET("movie/popular")
-        Call<MovieResponse<Movie>> getMoviesByPopularity(@Query("api_key") String apiKey);
+        Call<MovieResponse> getMoviesByPopularity(@Query("api_key") String apiKey);
 
         @GET("movie/top_rated")
-        Call<MovieResponse<Movie>> getMoviesByTopRating(@Query("api_key") String apiKey);
+        Call<MovieResponse> getMoviesByTopRating(@Query("api_key") String apiKey);
 
         @GET("genre/movie/list")
         Call<GenreResponse> getGenres(@Query("api_key") String apiKey);
@@ -58,7 +58,7 @@ public final class MoviesApiService {
      * @param callback - Callback that will be invoked when request is done.
      *                 Can contain result or error from the request.
      */
-    public void getMoviesByPopularity(Callback<MovieResponse<Movie>> callback) {
+    public void getMoviesByPopularity(Callback<MovieResponse> callback) {
         mMovieApi.getMoviesByPopularity(BuildConfig.MOVIE_API_KEY)
                 .enqueue(callback);
     }
@@ -69,7 +69,7 @@ public final class MoviesApiService {
      * @param callback - Callback that will be invoked when request is done.
      *                 Can contain result or error from the request.
      */
-    public void getMoviesByTopRating(Callback<MovieResponse<Movie>> callback) {
+    public void getMoviesByTopRating(Callback<MovieResponse> callback) {
         mMovieApi.getMoviesByTopRating(BuildConfig.MOVIE_API_KEY)
                 .enqueue(callback);
     }

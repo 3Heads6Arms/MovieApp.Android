@@ -44,9 +44,9 @@ public class MoviesActivity extends AppCompatActivity {
             startActivity(movieDetailIntent);
         }
     };
-    private Callback<MovieResponse<Movie>> mMoviesRequestCallback = new Callback<MovieResponse<Movie>>() {
+    private Callback<MovieResponse> mMoviesRequestCallback = new Callback<MovieResponse>() {
         @Override
-        public void onResponse(Call<MovieResponse<Movie>> call, Response<MovieResponse<Movie>> response) {
+        public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
             mLoadingIndicatorPb.setVisibility(View.INVISIBLE);
             if (response.body() != null) {
                 List<Movie> movieData = response.body().getResults();
@@ -56,7 +56,7 @@ public class MoviesActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(Call<MovieResponse<Movie>> call, Throwable t) {
+        public void onFailure(Call<MovieResponse> call, Throwable t) {
             mLoadingIndicatorPb.setVisibility(View.INVISIBLE);
             t.printStackTrace();
         }
