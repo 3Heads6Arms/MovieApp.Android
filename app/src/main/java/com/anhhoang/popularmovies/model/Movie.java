@@ -136,7 +136,7 @@ public class Movie implements Parcelable {
 
         @Override
         public Movie[] newArray(int size) {
-            return new Movie[0];
+            return new Movie[size];
         }
     };
 }

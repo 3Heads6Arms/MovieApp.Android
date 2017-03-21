@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.anhhoang.popularmovies.model.Genre;
@@ -13,6 +15,7 @@ import com.anhhoang.popularmovies.model.GenreResponse;
 import com.anhhoang.popularmovies.model.Movie;
 import com.anhhoang.popularmovies.model.Review;
 import com.anhhoang.popularmovies.model.ReviewResponse;
+import com.anhhoang.popularmovies.utils.CustomLinearSnapHelper;
 import com.anhhoang.popularmovies.utils.MoviePosterSizeEnum;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 import com.bumptech.glide.Glide;
@@ -45,6 +48,10 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView mOverviewTv;
     @BindView(R.id.rv_reviews)
     RecyclerView mReviewsRv;
+    @BindView(R.id.sv_detail)
+    ScrollView mDetailSv;
+    @BindView(R.id.tv_reviews_label)
+    TextView mReviewsLabelTv;
 
     private GenresAdapter mGenresAdapter;
 
@@ -53,6 +60,12 @@ public class MovieDetailActivity extends AppCompatActivity {
     private Movie mMovie;
     private MoviesApiService mMoviesService;
 
+    private CustomLinearSnapHelper.OnLinearSnapFling mOnSnapFling = new CustomLinearSnapHelper.OnLinearSnapFling() {
+        @Override
+        public void onFling() {
+            mDetailSv.smoothScrollTo(0, mReviewsRv.getTop());
+        }
+    };
     private Callback<GenreResponse> genresCallback = new Callback<GenreResponse>() {
         @Override
         public void onResponse(Call<GenreResponse> call, Response<GenreResponse> response) {
@@ -74,6 +87,14 @@ public class MovieDetailActivity extends AppCompatActivity {
             int currentPage = response.body().getPage();
             int totalReviews = response.body().getTotalResults();
 
+            if(totalReviews > 0){
+                mReviewsRv.setVisibility(View.VISIBLE);
+                mReviewsLabelTv.setVisibility(View.VISIBLE);
+            } else {
+                mReviewsRv.setVisibility(View.INVISIBLE);
+                mReviewsLabelTv.setVisibility(View.INVISIBLE);
+            }
+
             mReviewsAdapter.setTotalPages(totalPages);
             mReviewsAdapter.setTotalReviews(totalReviews);
             mReviewsAdapter.setCurrentPage(currentPage);
@@ -93,6 +114,19 @@ public class MovieDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         mMoviesService = MoviesApiService.getService();
         Intent intent = getIntent();
+
+        mGenresAdapter = new GenresAdapter();
+        mGenresRv.setAdapter(mGenresAdapter);
+
+        mReviewsRv.setVisibility(View.INVISIBLE);
+        mReviewsLabelTv.setVisibility(View.INVISIBLE);
+
+        CustomLinearSnapHelper linearSnapHelper = new CustomLinearSnapHelper();
+        linearSnapHelper.setOnSnapFling(mOnSnapFling);
+        mReviewsAdapter = new ReviewsAdapter();
+        mReviewsRv.setAdapter(mReviewsAdapter);
+        linearSnapHelper.attachToRecyclerView(mReviewsRv);
+
         if (intent.hasExtra(MOVIE_DATA)) {
             mMovie = intent.getParcelableExtra(MOVIE_DATA);
             loadData();
@@ -132,12 +166,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                     .into(mPosterIv);
         }
 
-        mGenresAdapter = new GenresAdapter();
-        mGenresRv.setAdapter(mGenresAdapter);
         mMoviesService.getGenres(genresCallback);
-
-        mReviewsAdapter = new ReviewsAdapter();
-        mReviewsRv.setAdapter(mReviewsAdapter);
         mMoviesService.getReviews(mMovie.getId(), mReviewsAdapter.getCurrentPage() + 1, reviewsCallback);
 
     }
