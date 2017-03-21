@@ -141,7 +141,6 @@
             android:id="@+id/rv_reviews"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
             android:orientation="horizontal"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"
             app:layout_constraintLeft_toLeftOf="parent"
