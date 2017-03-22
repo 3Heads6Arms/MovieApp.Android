@@ -30,6 +30,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -64,6 +65,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private Movie mMovie;
     private MoviesApiService mMoviesService;
+    private Realm mRealm;
 
     private Callback<GenreResponse> genresCallback = new Callback<GenreResponse>() {
         @Override
@@ -121,6 +123,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
         ButterKnife.bind(this);
+        mRealm = Realm.getDefaultInstance();
+
         mMoviesService = MoviesApiService.getService();
         Intent intent = getIntent();
 
@@ -145,8 +149,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         mTrailersAdapter.setOnTrailerLoadListener(new TrailersAdapter.OnTrailerLoadListener() {
             @Override
             public void onPlay(String videoId) {
-//                Intent trailerIntent = new Intent(MovieDetailActivity.this, WatchTrailerActivity.class);
-//                trailerIntent.putExtra(WatchTrailerActivity.VIDEO_KEY_EXTRA, videoId);
                 Intent trailerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoId));
                 startActivity(trailerIntent);
             }

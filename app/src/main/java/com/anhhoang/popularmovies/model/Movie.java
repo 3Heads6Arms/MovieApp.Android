@@ -40,6 +40,7 @@ public class Movie implements Parcelable {
     private double voteAverage;
     @SerializedName("video")
     private boolean hasVideo;
+    private boolean isUserFavorite;
 
     public Movie(Parcel parcel) {
         genreIds = new ArrayList<>();
@@ -56,6 +57,7 @@ public class Movie implements Parcelable {
         voteCount = parcel.readInt();
         voteAverage = parcel.readDouble();
         hasVideo = parcel.readByte() != 0;
+        isUserFavorite = parcel.readByte() != 0;
     }
 
     public int getId() {
@@ -106,6 +108,14 @@ public class Movie implements Parcelable {
         return hasVideo;
     }
 
+    public boolean isUserFavorite() {
+        return isUserFavorite;
+    }
+
+    public void setUserFavorite(boolean userFavorite) {
+        isUserFavorite = userFavorite;
+    }
+
     @Override
     public int describeContents() {
         return hashCode();
@@ -125,6 +135,7 @@ public class Movie implements Parcelable {
         dest.writeInt(voteCount);
         dest.writeDouble(voteAverage);
         dest.writeByte((byte) (hasVideo ? 1 : 0));
+        dest.writeByte((byte) (isUserFavorite ? 1 : 0));
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
