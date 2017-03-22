@@ -41,7 +41,7 @@ public final class MoviesApiService {
         Call<ReviewResponse> getReviews(@Path("movie_id") int movieId, @Query("api_key") String apiKey, @Query("page") int page);
 
         @GET("movie/{movie_id}/videos")
-        Call<TrailerResponse> getTrailers(@Path("movie_id") int movieId, @Query("api_key") String apiKey, @Query("page") int page);
+        Call<TrailerResponse> getTrailers(@Path("movie_id") int movieId, @Query("api_key") String apiKey);
     }
 
     private final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
@@ -114,8 +114,8 @@ public final class MoviesApiService {
      * @param callback - Callback to be invoked when request is done.
      *                 May contain result or error from request.
      */
-    public void getTrailers(int movieId, int page, Callback<TrailerResponse> callback) {
-        mMovieApi.getTrailers(movieId, BuildConfig.MOVIE_API_KEY, page)
+    public void getTrailers(int movieId, Callback<TrailerResponse> callback) {
+        mMovieApi.getTrailers(movieId, BuildConfig.MOVIE_API_KEY)
                 .enqueue(callback);
     }
 

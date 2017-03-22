@@ -1,6 +1,7 @@
 package com.anhhoang.popularmovies;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,10 +16,12 @@ import com.anhhoang.popularmovies.model.GenreResponse;
 import com.anhhoang.popularmovies.model.Movie;
 import com.anhhoang.popularmovies.model.Review;
 import com.anhhoang.popularmovies.model.ReviewResponse;
+import com.anhhoang.popularmovies.model.TrailerResponse;
 import com.anhhoang.popularmovies.utils.CustomLinearSnapHelper;
 import com.anhhoang.popularmovies.utils.MoviePosterSizeEnum;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 import com.bumptech.glide.Glide;
+import com.google.android.youtube.player.YouTubeInitializationResult;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -52,20 +55,16 @@ public class MovieDetailActivity extends AppCompatActivity {
     ScrollView mDetailSv;
     @BindView(R.id.tv_reviews_label)
     TextView mReviewsLabelTv;
+    @BindView(R.id.rv_trailers)
+    RecyclerView mTrailersRv;
 
     private GenresAdapter mGenresAdapter;
-
+    private TrailersAdapter mTrailersAdapter;
     private ReviewsAdapter mReviewsAdapter;
 
     private Movie mMovie;
     private MoviesApiService mMoviesService;
 
-    private CustomLinearSnapHelper.OnLinearSnapFling mOnSnapFling = new CustomLinearSnapHelper.OnLinearSnapFling() {
-        @Override
-        public void onFling() {
-            mDetailSv.smoothScrollTo(0, mReviewsRv.getTop());
-        }
-    };
     private Callback<GenreResponse> genresCallback = new Callback<GenreResponse>() {
         @Override
         public void onResponse(Call<GenreResponse> call, Response<GenreResponse> response) {
@@ -78,7 +77,17 @@ public class MovieDetailActivity extends AppCompatActivity {
             t.printStackTrace();
         }
     };
+    private Callback<TrailerResponse> trailersCallback = new Callback<TrailerResponse>() {
+        @Override
+        public void onResponse(Call<TrailerResponse> call, Response<TrailerResponse> response) {
+            mTrailersAdapter.setTrailers(response.body().getResults());
+        }
 
+        @Override
+        public void onFailure(Call<TrailerResponse> call, Throwable t) {
+            t.printStackTrace();
+        }
+    };
     private Callback<ReviewResponse> reviewsCallback = new Callback<ReviewResponse>() {
         @Override
         public void onResponse(Call<ReviewResponse> call, Response<ReviewResponse> response) {
@@ -87,7 +96,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             int currentPage = response.body().getPage();
             int totalReviews = response.body().getTotalResults();
 
-            if(totalReviews > 0){
+            if (totalReviews > 0) {
                 mReviewsRv.setVisibility(View.VISIBLE);
                 mReviewsLabelTv.setVisibility(View.VISIBLE);
             } else {
@@ -122,10 +131,32 @@ public class MovieDetailActivity extends AppCompatActivity {
         mReviewsLabelTv.setVisibility(View.INVISIBLE);
 
         CustomLinearSnapHelper linearSnapHelper = new CustomLinearSnapHelper();
-        linearSnapHelper.setOnSnapFling(mOnSnapFling);
+        linearSnapHelper.setOnSnapFling(new CustomLinearSnapHelper.OnLinearSnapFling() {
+            @Override
+            public void onFling() {
+                mDetailSv.smoothScrollTo(0, mReviewsRv.getTop());
+            }
+        });
         mReviewsAdapter = new ReviewsAdapter();
         mReviewsRv.setAdapter(mReviewsAdapter);
         linearSnapHelper.attachToRecyclerView(mReviewsRv);
+
+        mTrailersAdapter = new TrailersAdapter();
+        mTrailersAdapter.setOnTrailerLoadListener(new TrailersAdapter.OnTrailerLoadListener() {
+            @Override
+            public void onPlay(String videoId) {
+//                Intent trailerIntent = new Intent(MovieDetailActivity.this, WatchTrailerActivity.class);
+//                trailerIntent.putExtra(WatchTrailerActivity.VIDEO_KEY_EXTRA, videoId);
+                Intent trailerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoId));
+                startActivity(trailerIntent);
+            }
+
+            @Override
+            public void onError(YouTubeInitializationResult error) {
+                error.getErrorDialog(MovieDetailActivity.this, 0).show();
+            }
+        });
+        mTrailersRv.setAdapter(mTrailersAdapter);
 
         if (intent.hasExtra(MOVIE_DATA)) {
             mMovie = intent.getParcelableExtra(MOVIE_DATA);
@@ -167,6 +198,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
 
         mMoviesService.getGenres(genresCallback);
+        mMoviesService.getTrailers(mMovie.getId(), trailersCallback);
         mMoviesService.getReviews(mMovie.getId(), mReviewsAdapter.getCurrentPage() + 1, reviewsCallback);
 
     }

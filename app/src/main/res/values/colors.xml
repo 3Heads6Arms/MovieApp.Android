@@ -5,4 +5,5 @@
     <color name="colorPrimaryLight">#FFE082</color>
     <color name="colorAccent">#2962FF</color>
     <color name="colorFavorite">#FF4081</color>
+    <color name="youtubeRed">#cc181e</color>
 </resources>
