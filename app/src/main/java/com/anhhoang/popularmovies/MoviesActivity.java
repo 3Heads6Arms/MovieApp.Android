@@ -18,9 +18,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.anhhoang.popularmovies.data.FavoriteMovieContract;
 import com.anhhoang.popularmovies.model.Movie;
 import com.anhhoang.popularmovies.model.MovieResponse;
-import com.anhhoang.popularmovies.utils.FavoriteMovieUriUtils;
 import com.anhhoang.popularmovies.utils.FavoriteMovieUtils;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 
@@ -112,13 +112,6 @@ public class MoviesActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        int gridRowItems = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2;
-        mLayoutManager.setSpanCount(gridRowItems);
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -171,7 +164,7 @@ public class MoviesActivity extends AppCompatActivity {
             if (movieId != -1) {
                 if (resultCode == FAVORITE_ADDED) {
                     // Get movie from persisted DB, there is any should returns only 1 result.
-                    Uri queryUri = FavoriteMovieUriUtils.CONTENT_URI.buildUpon().appendPath(String.valueOf(movieId)).build();
+                    Uri queryUri = FavoriteMovieContract.FavoriteMovieEntry.CONTENT_URI.buildUpon().appendPath(String.valueOf(movieId)).build();
                     final Cursor cursor = getContentResolver().query(
                             queryUri,
                             null,
@@ -198,7 +191,7 @@ public class MoviesActivity extends AppCompatActivity {
         mMoviesAdapter.setMovieData(null);
 
         final Cursor cursor = getContentResolver().query(
-                FavoriteMovieUriUtils.CONTENT_URI,
+                FavoriteMovieContract.FavoriteMovieEntry.CONTENT_URI,
                 null,
                 null,
                 null,

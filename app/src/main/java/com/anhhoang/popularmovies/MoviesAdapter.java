@@ -17,6 +17,7 @@ import com.anhhoang.popularmovies.utils.MoviePosterSizeEnum;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -35,6 +36,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     public MoviesAdapter(Context context, OnMovieItemClickListener clickListener) {
         mContext = context;
         mOnClickListener = clickListener;
+        mMovieData = new ArrayList<>();
     }
 
     @Override
