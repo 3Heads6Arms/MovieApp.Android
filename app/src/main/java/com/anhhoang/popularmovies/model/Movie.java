@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Movie implements IMovie {
+public class Movie implements Parcelable {
     @SerializedName("id")
     private int id;
     @SerializedName("title")
@@ -67,22 +67,18 @@ public class Movie implements IMovie {
         isUserFavorite = parcel.readByte() != 0;
     }
 
-    @Override
     public int getId() {
         return id;
     }
 
-    @Override
     public String getTitle() {
         return title;
     }
 
-    @Override
     public String getOverview() {
         return overview;
     }
 
-    @Override
     public List<Integer> getGenreIds() {
         return genreIds;
     }
@@ -91,52 +87,42 @@ public class Movie implements IMovie {
         this.genreIds = genreIds;
     }
 
-    @Override
     public String getPosterPath() {
         return posterPath;
     }
 
-    @Override
     public String getBackdropPath() {
         return backdropPath;
     }
 
-    @Override
     public boolean isAdult() {
         return isAdult;
     }
 
-    @Override
     public Date getReleaseDate() {
         return releaseDate;
     }
 
-    @Override
     public double getPopularity() {
         return popularity;
     }
 
-    @Override
     public int getVoteCount() {
         return voteCount;
     }
 
-    @Override
     public double getVoteAverage() {
         return voteAverage;
     }
 
-    @Override
     public boolean isHasVideo() {
         return hasVideo;
     }
 
-    @Override
     public boolean isUserFavorite() {
         return isUserFavorite;
     }
 
-    @Override
     public void setUserFavorite(boolean userFavorite) {
         isUserFavorite = userFavorite;
     }

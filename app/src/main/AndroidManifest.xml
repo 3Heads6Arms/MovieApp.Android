@@ -7,15 +7,13 @@
     <uses-permission-sdk-23 android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".PopularMoviesApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MoviesActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize">
+            android:name=".MoviesActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,7 +22,6 @@
         </activity>
         <activity
             android:name=".MovieDetailActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:parentActivityName=".MoviesActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

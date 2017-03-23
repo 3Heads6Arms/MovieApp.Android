@@ -44,4 +44,4 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 
 }
-apply plugin: 'realm-android'
+//apply plugin: 'realm-android'

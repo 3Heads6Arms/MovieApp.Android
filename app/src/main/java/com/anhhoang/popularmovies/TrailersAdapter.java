@@ -15,6 +15,7 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubeThumbnailLoader;
 import com.google.android.youtube.player.YouTubeThumbnailView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -35,13 +36,15 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.ViewHo
     private List<Trailer> mTrailers;
     private OnTrailerLoadListener mListener;
     private boolean errorShown;
+    private List<YouTubeThumbnailLoader> mLoaders;
 
-    public TrailersAdapter(OnTrailerLoadListener listener){
-        if(listener == null){
+    public TrailersAdapter(OnTrailerLoadListener listener) {
+        if (listener == null) {
             throw new IllegalArgumentException("Listener cannot be null");
         }
 
         mListener = listener;
+        mLoaders = new ArrayList<>();
     }
 
     @Override
@@ -77,6 +80,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.ViewHo
             public void onInitializationSuccess(YouTubeThumbnailView youTubeThumbnailView, YouTubeThumbnailLoader youTubeThumbnailLoader) {
                 youTubeThumbnailLoader.setVideo(trailer.getKey());
                 youTubeThumbnailLoader.setOnThumbnailLoadedListener(onThumbnailLoadedListener);
+                mLoaders.add(youTubeThumbnailLoader);
             }
 
             @Override
@@ -104,7 +108,11 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.ViewHo
         return mTrailers;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public List<YouTubeThumbnailLoader> getLoaders() {
+        return mLoaders;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.yttv_thumbnail)
         public YouTubeThumbnailView mThumbnailYttv;
         @BindView(R.id.iv_play)
