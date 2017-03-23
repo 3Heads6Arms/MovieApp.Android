@@ -48,6 +48,10 @@ public class GenresAdapter extends RecyclerView.Adapter<GenresAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
+    public List<Genre> getGenres() {
+        return mGenres;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tv_genre)
         public TextView genreTv;

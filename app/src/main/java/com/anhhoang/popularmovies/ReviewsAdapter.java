@@ -27,7 +27,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ViewHold
     private int mCurrentPage;
     private int mTotalReviews;
 
-    public ReviewsAdapter(){
+    public ReviewsAdapter() {
         mCurrentPage = 0;
     }
 
@@ -80,6 +80,10 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ViewHold
 
     public void setTotalReviews(int totalReviews) {
         this.mTotalReviews = totalReviews;
+    }
+
+    public List<Review> getReviews() {
+        return mReviews;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

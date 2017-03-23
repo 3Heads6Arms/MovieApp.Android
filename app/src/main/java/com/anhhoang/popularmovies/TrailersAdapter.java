@@ -100,6 +100,10 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.ViewHo
         notifyDataSetChanged();
     }
 
+    public List<Trailer> getTrailers() {
+        return mTrailers;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         @BindView(R.id.yttv_thumbnail)
         public YouTubeThumbnailView mThumbnailYttv;

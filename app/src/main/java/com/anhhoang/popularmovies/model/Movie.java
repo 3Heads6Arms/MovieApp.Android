@@ -45,6 +45,10 @@ public class Movie implements IMovie {
     public Movie() {
     }
 
+    public Movie(int id) {
+        this.id = id;
+    }
+
     public Movie(Parcel parcel) {
         genreIds = new ArrayList<>();
 
@@ -179,6 +183,15 @@ public class Movie implements IMovie {
 
     public void setHasVideo(boolean hasVideo) {
         this.hasVideo = hasVideo;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Movie) {
+            return ((Movie) obj).id == this.id;
+        }
+
+        return false;
     }
 
     @Override

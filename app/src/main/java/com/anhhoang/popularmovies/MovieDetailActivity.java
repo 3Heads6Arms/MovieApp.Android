@@ -6,9 +6,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -42,6 +44,16 @@ import retrofit2.Response;
 public class MovieDetailActivity extends AppCompatActivity {
     public static final String MOVIE_DATA = "MovieExtraData";
 
+    // May not needed
+//    private static final String MOVIE_DATA_KEY = "MovieSaveData";
+//    private static final String SCROLL_POSITION_KEY = "ScrollPosition";
+//    private static final String GENRE_ADAPTER_DATA_KEY = "GenreAdapterData";
+//    private static final String GENRE_LAYOUT_KEY = "GenreLayout";
+//    private static final String TRAILER_ADAPTER_DATA_KEY = "TrailerAdapterData";
+//    private static final String TRAILER_LAYOUT_KEY = "TrailerLayout";
+//    private static final String REVIEW_ADAPTER_DATA_KEY = "ReviewAdapterData";
+//    private static final String REVIEW_LAYOUT_KEY = "ReviewLayout";
+
     @BindView(R.id.iv_backdrop)
     ImageView mBackDropIv;
     @BindView(R.id.iv_poster)
@@ -71,6 +83,11 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private Movie mMovie;
     private MoviesApiService mMoviesService;
+    private int mFavoriteActionTaken;
+    // Used to compare with final state to determine if it was changed;
+    // User may tap favorite button few times, causes indetermination of actual favorite state of the movie, while mFavoriteActionTaken still get changes.
+    // If user state is returned to original state, parent activity doesn't have to handle it
+    private boolean mOriginalFavoriteState;
 
     private Callback<GenreResponse> genresCallback = new Callback<GenreResponse>() {
         @Override
@@ -129,8 +146,12 @@ public class MovieDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_detail);
         ButterKnife.bind(this);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         mMoviesService = MoviesApiService.getService();
         Intent intent = getIntent();
+        if (!intent.hasExtra(MOVIE_DATA)) throw new IllegalArgumentException("Missing Movie extra");
+
 
         mGenresAdapter = new GenresAdapter();
         mGenresRv.setAdapter(mGenresAdapter);
@@ -145,11 +166,13 @@ public class MovieDetailActivity extends AppCompatActivity {
                 int favoriteIconId = mMovie.isUserFavorite() ? R.drawable.ic_favorite_black_24dp : R.drawable.ic_favorite_border_black_24dp;
                 mFavoriteFab.setImageResource(favoriteIconId);
                 if (mMovie.isUserFavorite()) {
+                    mFavoriteActionTaken = MoviesActivity.FAVORITE_ADDED;
                     // Add new favorite to realm if isn't already exists in realm
                     ContentValues contentValues = FavoriteMovieUtils.parse(mMovie);
                     Uri result = getContentResolver().insert(FavoriteMovieUriUtils.CONTENT_URI, contentValues);
                 } else {
                     // Movie is no longer favorite, remove from realm
+                    mFavoriteActionTaken = MoviesActivity.FAVORITE_REMOVED;
                     Uri deleteUri = FavoriteMovieUriUtils.CONTENT_URI.buildUpon().appendPath(String.valueOf(mMovie.getId())).build();
                     int deleted = getContentResolver().delete(
                             deleteUri,
@@ -185,14 +208,105 @@ public class MovieDetailActivity extends AppCompatActivity {
         });
         mTrailersRv.setAdapter(mTrailersAdapter);
 
-        if (intent.hasExtra(MOVIE_DATA)) {
-            mMovie = intent.getParcelableExtra(MOVIE_DATA);
-            loadData();
+        mMovie = intent.getParcelableExtra(MOVIE_DATA);
+        mFavoriteActionTaken = MoviesActivity.NO_ACTION_TAKEN;
+
+        setSimpleMovieValues();
+        // Loaded original state after setSimpleMovieValues, because movie values update favorite state from persisted data.
+        mOriginalFavoriteState = mMovie.isUserFavorite();
+        // Load More complex data.
+        // Extracted incase we need to customely handle state changes, this should not be executed, but to load from state
+        loadData();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finalizeFavoriteResult();
+            return true;
         }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finalizeFavoriteResult();
+    }
+
+    // May not needed
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putParcelable(MOVIE_DATA_KEY, mMovie);
+//        outState.putInt(SCROLL_POSITION_KEY, mDetailSv.getScrollY());
+//        outState.putParcelableArrayList(
+//                GENRE_ADAPTER_DATA_KEY,
+//                new ArrayList<>(mGenresAdapter.getGenres()));
+//        outState.putParcelable(
+//                GENRE_LAYOUT_KEY,
+//                mGenresRv.getLayoutManager()
+//                        .onSaveInstanceState());
+//        outState.putParcelableArrayList(
+//                TRAILER_ADAPTER_DATA_KEY,
+//                new ArrayList<>(mTrailersAdapter.getTrailers()));
+//        outState.putParcelable(
+//                TRAILER_LAYOUT_KEY,
+//                mTrailersRv
+//                        .getLayoutManager()
+//                        .onSaveInstanceState());
+//        outState.putParcelableArrayList(
+//                REVIEW_ADAPTER_DATA_KEY,
+//                new ArrayList<>(mReviewsAdapter.getReviews()));
+//        outState.putParcelable(
+//                REVIEW_LAYOUT_KEY,
+//                mReviewsRv
+//                        .getLayoutManager()
+//                        .onSaveInstanceState());
+//    }
+
+    private void finalizeFavoriteResult() {
+        if (mFavoriteActionTaken == MoviesActivity.NO_ACTION_TAKEN || mMovie.isUserFavorite() == mOriginalFavoriteState) {
+            setResult(MoviesActivity.NO_ACTION_TAKEN);
+        } else {
+            Intent data = new Intent();
+            data.putExtra(Intent.EXTRA_INDEX, mMovie.getId());
+            setResult(mFavoriteActionTaken, data);
+        }
+
+        finish();
     }
 
     // Extracted data loading for better code reading
     private void loadData() {
+        if (mMovie.getBackdropPath() != null) {
+            String backdropUrl = MoviesApiService.getMovieImageUrl(mMovie.getBackdropPath(), MoviePosterSizeEnum.w342);
+            Glide.with(this)
+                    .load(backdropUrl)
+                    .fitCenter()
+                    .placeholder(R.drawable.ic_poster_placeholder)
+                    .error(R.drawable.ic_broken_image)
+                    .into(mBackDropIv);
+        }
+
+        if (mMovie.getPosterPath() != null) {
+            String posterUrl = MoviesApiService.getMovieImageUrl(mMovie.getPosterPath(), MoviePosterSizeEnum.w92);
+            Glide.with(this)
+                    .load(posterUrl)
+                    .fitCenter()
+                    .placeholder(R.drawable.ic_poster_placeholder)
+                    .error(R.drawable.ic_broken_image)
+                    .into(mPosterIv);
+        }
+
+        mMoviesService.getGenres(genresCallback);
+        mMoviesService.getTrailers(mMovie.getId(), trailersCallback);
+        mMoviesService.getReviews(mMovie.getId(), mReviewsAdapter.getCurrentPage() + 1, reviewsCallback);
+
+    }
+
+    private void setSimpleMovieValues() {
         ActionBar actionBar = getSupportActionBar();
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         String rate = String.format("%.1f|%d", mMovie.getVoteAverage(), mMovie.getVoteCount());
@@ -218,32 +332,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         mOverviewTv.setText(mMovie.getOverview());
         mRateTv.setText(rate);
         mFavoriteFab.setImageResource(favoriteIconId);
-
-        if (mMovie.getBackdropPath() != null) {
-            String backdropUrl = MoviesApiService.getMovieImageUrl(mMovie.getBackdropPath(), MoviePosterSizeEnum.w342);
-            Glide.with(this)
-                    .load(backdropUrl)
-                    .fitCenter()
-                    .placeholder(R.drawable.ic_poster_placeholder)
-                    .error(R.drawable.ic_broken_image)
-                    .into(mBackDropIv);
-        }
-
-        if (mMovie.getPosterPath() != null) {
-            String posterUrl = MoviesApiService.getMovieImageUrl(mMovie.getPosterPath(), MoviePosterSizeEnum.w92);
-
-            Glide.with(this)
-                    .load(posterUrl)
-                    .fitCenter()
-                    .placeholder(R.drawable.ic_poster_placeholder)
-                    .error(R.drawable.ic_broken_image)
-                    .into(mPosterIv);
-        }
-
-        mMoviesService.getGenres(genresCallback);
-        mMoviesService.getTrailers(mMovie.getId(), trailersCallback);
-        mMoviesService.getReviews(mMovie.getId(), mReviewsAdapter.getCurrentPage() + 1, reviewsCallback);
-
     }
 
     private List<Genre> getMovieGenres(List<Integer> genres, List<Genre> allGenres) {
