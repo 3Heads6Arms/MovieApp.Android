@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,24 +23,29 @@ import com.anhhoang.popularmovies.utils.FavoriteMovieUriUtils;
 import com.anhhoang.popularmovies.utils.FavoriteMovieUtils;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MoviesActivity extends AppCompatActivity {
-    private MoviesAdapter mMoviesAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
     @BindView(R.id.rv_movies)
     RecyclerView mMoviesRv;
     private ProgressBar mLoadingIndicatorPb;
 
     private MoviesApiService mMoviesApiService;
+
+    private MoviesAdapter mMoviesAdapter;
+    private GridLayoutManager mLayoutManager;
+
+    private int mSelectedSetting;
+    private static final String SELECTED_MENU_KEY = "SelectedSetting";
+    private static final String RECYCLER_LAYOUT_KEY = "RecyclerPosition";
+    private static final String ADAPTER_DATA_KEY = "AdapterData";
 
     private MoviesAdapter.OnMovieItemClickListener mOnClickListener = new MoviesAdapter.OnMovieItemClickListener() {
         @Override
@@ -75,6 +81,7 @@ public class MoviesActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         int gridRowItems = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2;
+        mSelectedSetting = R.id.action_sort_popularity;
 
         mLoadingIndicatorPb = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
@@ -85,8 +92,37 @@ public class MoviesActivity extends AppCompatActivity {
         mMoviesRv.setAdapter(mMoviesAdapter);
         mMoviesApiService = MoviesApiService.getService();
 
-        mLoadingIndicatorPb.setVisibility(View.VISIBLE);
-        mMoviesApiService.getMoviesByPopularity(mMoviesRequestCallback);
+        if (savedInstanceState == null) {
+            mLoadingIndicatorPb.setVisibility(View.VISIBLE);
+            mMoviesApiService.getMoviesByPopularity(mMoviesRequestCallback);
+        } else {
+            mSelectedSetting = savedInstanceState.getInt(SELECTED_MENU_KEY);
+            List<Movie> movies = savedInstanceState.getParcelableArrayList(ADAPTER_DATA_KEY);
+            Parcelable layoutParcelable = savedInstanceState.getParcelable(RECYCLER_LAYOUT_KEY);
+
+            mMoviesAdapter.setMovieData(movies);
+            mLayoutManager.onRestoreInstanceState(layoutParcelable);
+            mLayoutManager.setSpanCount(gridRowItems);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        int gridRowItems = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2;
+        mLayoutManager.setSpanCount(gridRowItems);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Parcelable layoutParcelable = mLayoutManager.onSaveInstanceState();
+        ArrayList<Movie> movies = new ArrayList<>(mMoviesAdapter.getMovieData());
+
+        outState.putParcelableArrayList(ADAPTER_DATA_KEY, movies);
+        outState.putParcelable(RECYCLER_LAYOUT_KEY, layoutParcelable);
+        outState.putInt(SELECTED_MENU_KEY, mSelectedSetting);
     }
 
     @Override
@@ -98,6 +134,7 @@ public class MoviesActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
+        mSelectedSetting = itemId;
 
         // Clear up adapter's data and shows progress bar
         if (itemId == R.id.action_sort_popularity) {

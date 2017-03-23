@@ -36,6 +36,14 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.ViewHo
     private OnTrailerLoadListener mListener;
     private boolean errorShown;
 
+    public TrailersAdapter(OnTrailerLoadListener listener){
+        if(listener == null){
+            throw new IllegalArgumentException("Listener cannot be null");
+        }
+
+        mListener = listener;
+    }
+
     @Override
     public TrailersAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater
@@ -74,7 +82,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.ViewHo
             @Override
             public void onInitializationFailure(YouTubeThumbnailView youTubeThumbnailView, YouTubeInitializationResult youTubeInitializationResult) {
                 holder.itemView.setVisibility(View.GONE);
-                if (mListener != null && !errorShown) {
+                if (!errorShown) {
                     errorShown = true;
                     mListener.onError(youTubeInitializationResult);
                 }
@@ -90,10 +98,6 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.ViewHo
     public void setTrailers(List<Trailer> mTrailers) {
         this.mTrailers = mTrailers;
         notifyDataSetChanged();
-    }
-
-    public void setOnTrailerLoadListener(OnTrailerLoadListener mListener) {
-        this.mListener = mListener;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

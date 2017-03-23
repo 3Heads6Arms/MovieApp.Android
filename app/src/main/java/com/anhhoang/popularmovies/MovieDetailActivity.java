@@ -171,8 +171,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         mReviewsRv.setAdapter(mReviewsAdapter);
         linearSnapHelper.attachToRecyclerView(mReviewsRv);
 
-        mTrailersAdapter = new TrailersAdapter();
-        mTrailersAdapter.setOnTrailerLoadListener(new TrailersAdapter.OnTrailerLoadListener() {
+        mTrailersAdapter = new TrailersAdapter(new TrailersAdapter.OnTrailerLoadListener() {
             @Override
             public void onPlay(String videoId) {
                 Intent trailerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoId));
