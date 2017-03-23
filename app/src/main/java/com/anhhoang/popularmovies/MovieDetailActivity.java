@@ -1,8 +1,11 @@
 package com.anhhoang.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +21,8 @@ import com.anhhoang.popularmovies.model.Review;
 import com.anhhoang.popularmovies.model.ReviewResponse;
 import com.anhhoang.popularmovies.model.TrailerResponse;
 import com.anhhoang.popularmovies.utils.CustomLinearSnapHelper;
+import com.anhhoang.popularmovies.utils.FavoriteMovieUriUtils;
+import com.anhhoang.popularmovies.utils.FavoriteMovieUtils;
 import com.anhhoang.popularmovies.utils.MoviePosterSizeEnum;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 import com.bumptech.glide.Glide;
@@ -30,7 +35,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -58,6 +62,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView mReviewsLabelTv;
     @BindView(R.id.rv_trailers)
     RecyclerView mTrailersRv;
+    @BindView(R.id.fab_favorite)
+    FloatingActionButton mFavoriteFab;
 
     private GenresAdapter mGenresAdapter;
     private TrailersAdapter mTrailersAdapter;
@@ -65,7 +71,6 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private Movie mMovie;
     private MoviesApiService mMoviesService;
-    private Realm mRealm;
 
     private Callback<GenreResponse> genresCallback = new Callback<GenreResponse>() {
         @Override
@@ -123,7 +128,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
         ButterKnife.bind(this);
-        mRealm = Realm.getDefaultInstance();
 
         mMoviesService = MoviesApiService.getService();
         Intent intent = getIntent();
@@ -133,6 +137,28 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         mReviewsRv.setVisibility(View.INVISIBLE);
         mReviewsLabelTv.setVisibility(View.INVISIBLE);
+
+        mFavoriteFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMovie.setUserFavorite(!mMovie.isUserFavorite());
+                int favoriteIconId = mMovie.isUserFavorite() ? R.drawable.ic_favorite_black_24dp : R.drawable.ic_favorite_border_black_24dp;
+                mFavoriteFab.setImageResource(favoriteIconId);
+                if (mMovie.isUserFavorite()) {
+                    // Add new favorite to realm if isn't already exists in realm
+                    ContentValues contentValues = FavoriteMovieUtils.parse(mMovie);
+                    Uri result = getContentResolver().insert(FavoriteMovieUriUtils.CONTENT_URI, contentValues);
+                } else {
+                    // Movie is no longer favorite, remove from realm
+                    Uri deleteUri = FavoriteMovieUriUtils.CONTENT_URI.buildUpon().appendPath(String.valueOf(mMovie.getId())).build();
+                    int deleted = getContentResolver().delete(
+                            deleteUri,
+                            null,
+                            null
+                    );
+                }
+            }
+        });
 
         CustomLinearSnapHelper linearSnapHelper = new CustomLinearSnapHelper();
         linearSnapHelper.setOnSnapFling(new CustomLinearSnapHelper.OnLinearSnapFling() {
@@ -171,12 +197,28 @@ public class MovieDetailActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         String rate = String.format("%.1f|%d", mMovie.getVoteAverage(), mMovie.getVoteCount());
+        // Get favorite status for the movie (movies source might not come from DB)
+        Uri queryUri = FavoriteMovieUriUtils.CONTENT_URI.buildUpon().appendPath(String.valueOf(mMovie.getId())).build();
+        final Cursor cursor = getContentResolver().query(
+                queryUri,
+                null,
+                null,
+                null,
+                null);
+        List<Movie> movies = FavoriteMovieUtils.parse(cursor);
+        if (movies != null) {
+            boolean isUserFavorite = movies.get(0).isUserFavorite();
+            mMovie.setUserFavorite(isUserFavorite);
+        }
+
+        int favoriteIconId = mMovie.isUserFavorite() ? R.drawable.ic_favorite_black_24dp : R.drawable.ic_favorite_border_black_24dp;
 
         actionBar.setTitle(mMovie.getTitle());
 
         mReleaseDateTv.setText(dateFormat.format(mMovie.getReleaseDate()));
         mOverviewTv.setText(mMovie.getOverview());
         mRateTv.setText(rate);
+        mFavoriteFab.setImageResource(favoriteIconId);
 
         if (mMovie.getBackdropPath() != null) {
             String backdropUrl = MoviesApiService.getMovieImageUrl(mMovie.getBackdropPath(), MoviePosterSizeEnum.w342);

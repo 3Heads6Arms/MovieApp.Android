@@ -1,29 +1,35 @@
+package com.anhhoang.popularmovies.data;
 /*
  * Copyright (C) 2013 The Android Open Source Project
  */
-/**
- * Created by AnhHo on 1/29/2017.
- */
-package com.anhhoang.popularmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.anhhoang.popularmovies.model.IMovie;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Movie implements IMovie {
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+/**
+ * Created by AnhHo on 3/22/2017.
+ */
+
+public class MovieRealm extends RealmObject implements IMovie {
+    @PrimaryKey
     @SerializedName("id")
     private int id;
     @SerializedName("title")
     private String title;
     @SerializedName("overview")
     private String overview;
-    @SerializedName("genre_ids")
-    private List<Integer> genreIds;
+    private RealmList<IntegerRealm> genreIds;
     @SerializedName("poster_path")
     private String posterPath;
     @SerializedName("backdrop_path")
@@ -42,16 +48,16 @@ public class Movie implements IMovie {
     private boolean hasVideo;
     private boolean isUserFavorite;
 
-    public Movie() {
+    public MovieRealm() {
     }
 
-    public Movie(Parcel parcel) {
-        genreIds = new ArrayList<>();
+    public MovieRealm(Parcel parcel) {
+        List<Integer> genres = new ArrayList<>();
 
         id = parcel.readInt();
         title = parcel.readString();
         overview = parcel.readString();
-        parcel.readList(genreIds, List.class.getClassLoader());
+        parcel.readList(genres, List.class.getClassLoader());
         posterPath = parcel.readString();
         backdropPath = parcel.readString();
         isAdult = parcel.readByte() != 0;
@@ -61,6 +67,8 @@ public class Movie implements IMovie {
         voteAverage = parcel.readDouble();
         hasVideo = parcel.readByte() != 0;
         isUserFavorite = parcel.readByte() != 0;
+
+        genreIds = IntegerRealm.parse(genres);
     }
 
     @Override
@@ -80,10 +88,10 @@ public class Movie implements IMovie {
 
     @Override
     public List<Integer> getGenreIds() {
-        return genreIds;
+        return IntegerRealm.parseTo(genreIds);
     }
 
-    public void setGenreIds(List<Integer> genreIds) {
+    public void setGenreIds(RealmList<IntegerRealm> genreIds) {
         this.genreIds = genreIds;
     }
 
@@ -188,10 +196,11 @@ public class Movie implements IMovie {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        List<Integer> genres = IntegerRealm.parseTo(genreIds);
         dest.writeInt(id);
         dest.writeString(title);
         dest.writeString(overview);
-        dest.writeList(genreIds);
+        dest.writeList(genres);
         dest.writeString(posterPath);
         dest.writeString(backdropPath);
         dest.writeByte((byte) (isAdult ? 1 : 0));
@@ -203,16 +212,16 @@ public class Movie implements IMovie {
         dest.writeByte((byte) (isUserFavorite ? 1 : 0));
     }
 
-    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+    public static final Parcelable.Creator<MovieRealm> CREATOR = new Parcelable.Creator<MovieRealm>() {
 
         @Override
-        public Movie createFromParcel(Parcel source) {
-            return new Movie(source);
+        public MovieRealm createFromParcel(Parcel source) {
+            return new MovieRealm(source);
         }
 
         @Override
-        public Movie[] newArray(int size) {
-            return new Movie[size];
+        public MovieRealm[] newArray(int size) {
+            return new MovieRealm[size];
         }
     };
 }

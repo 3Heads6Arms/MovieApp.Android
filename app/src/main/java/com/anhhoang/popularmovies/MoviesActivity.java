@@ -5,8 +5,10 @@
 package com.anhhoang.popularmovies;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -16,12 +18,15 @@ import android.widget.ProgressBar;
 
 import com.anhhoang.popularmovies.model.Movie;
 import com.anhhoang.popularmovies.model.MovieResponse;
+import com.anhhoang.popularmovies.utils.FavoriteMovieUriUtils;
+import com.anhhoang.popularmovies.utils.FavoriteMovieUtils;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -69,9 +74,11 @@ public class MoviesActivity extends AppCompatActivity {
         ButterKnife.setDebug(true);
         ButterKnife.bind(this);
 
+        int gridRowItems = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2;
+
         mLoadingIndicatorPb = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
-        mLayoutManager = new GridLayoutManager(this, 2);
+        mLayoutManager = new GridLayoutManager(this, gridRowItems);
         mMoviesAdapter = new MoviesAdapter(this, mOnClickListener);
 
         mMoviesRv.setLayoutManager(mLayoutManager);
@@ -103,8 +110,25 @@ public class MoviesActivity extends AppCompatActivity {
             mMoviesAdapter.setMovieData(null);
             mMoviesApiService.getMoviesByTopRating(mMoviesRequestCallback);
             return true;
+        } else if (itemId == R.id.action_favorite) {
+            loadFavoriteMovies();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void loadFavoriteMovies() {
+        mLoadingIndicatorPb.setVisibility(View.VISIBLE);
+        mMoviesAdapter.setMovieData(null);
+
+        final Cursor cursor = getContentResolver().query(
+                FavoriteMovieUriUtils.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+        List<Movie> movies = FavoriteMovieUtils.parse(cursor);
+        mLoadingIndicatorPb.setVisibility(View.INVISIBLE);
+        mMoviesAdapter.setMovieData(movies);
     }
 }
