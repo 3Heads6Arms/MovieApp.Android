@@ -7,18 +7,17 @@
 package com.anhhoang.popularmovies.utils;
 
 import com.anhhoang.popularmovies.BuildConfig;
-import com.anhhoang.popularmovies.data.Genre;
-import com.anhhoang.popularmovies.data.GenreResponse;
-import com.anhhoang.popularmovies.data.Movie;
-import com.anhhoang.popularmovies.data.MovieResponse;
-
-import java.util.List;
+import com.anhhoang.popularmovies.model.GenreResponse;
+import com.anhhoang.popularmovies.model.MovieResponse;
+import com.anhhoang.popularmovies.model.ReviewResponse;
+import com.anhhoang.popularmovies.model.TrailerResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 
@@ -30,13 +29,19 @@ public final class MoviesApiService {
      */
     private interface MovieApi {
         @GET("movie/popular")
-        Call<MovieResponse<Movie>> getMoviesByPopularity(@Query("api_key") String apiKey);
+        Call<MovieResponse> getMoviesByPopularity(@Query("api_key") String apiKey);
 
         @GET("movie/top_rated")
-        Call<MovieResponse<Movie>> getMoviesByTopRating(@Query("api_key") String apiKey);
+        Call<MovieResponse> getMoviesByTopRating(@Query("api_key") String apiKey);
 
         @GET("genre/movie/list")
         Call<GenreResponse> getGenres(@Query("api_key") String apiKey);
+
+        @GET("movie/{movie_id}/reviews")
+        Call<ReviewResponse> getReviews(@Path("movie_id") int movieId, @Query("api_key") String apiKey, @Query("page") int page);
+
+        @GET("movie/{movie_id}/videos")
+        Call<TrailerResponse> getTrailers(@Path("movie_id") int movieId, @Query("api_key") String apiKey);
     }
 
     private final String MOVIE_API_URL = "https://api.themoviedb.org/3/";
@@ -59,9 +64,9 @@ public final class MoviesApiService {
      * Asynchronously get list of movies by their popularity
      *
      * @param callback - Callback that will be invoked when request is done.
-     *                 Can contain result or error from the request.
+     *                 May contain result or error from the request.
      */
-    public void getMoviesByPopularity(Callback<MovieResponse<Movie>> callback) {
+    public void getMoviesByPopularity(Callback<MovieResponse> callback) {
         mMovieApi.getMoviesByPopularity(BuildConfig.MOVIE_API_KEY)
                 .enqueue(callback);
     }
@@ -70,20 +75,47 @@ public final class MoviesApiService {
      * Asynchronously get list of movies by their top rating
      *
      * @param callback - Callback that will be invoked when request is done.
-     *                 Can contain result or error from the request.
+     *                 May contain result or error from the request.
      */
-    public void getMoviesByTopRating(Callback<MovieResponse<Movie>> callback) {
+    public void getMoviesByTopRating(Callback<MovieResponse> callback) {
         mMovieApi.getMoviesByTopRating(BuildConfig.MOVIE_API_KEY)
                 .enqueue(callback);
     }
 
     /**
      * Get all movie's genres.
+     *
      * @param callback - Callback to be invoked when request is done.
-     *                 Can contain result or error from the request.
+     *                 May contain result or error from the request.
      */
     public void getGenres(Callback<GenreResponse> callback) {
         mMovieApi.getGenres(BuildConfig.MOVIE_API_KEY)
+                .enqueue(callback);
+    }
+
+    /**
+     * Returns all reviews for a movie
+     *
+     * @param movieId  - Id of the movie to get reviews for
+     * @param page     - page of review, should be 1 first time
+     * @param callback - Callback to be invoked when request is done.
+     *                 May contain result or error from request.
+     */
+    public void getReviews(int movieId, int page, Callback<ReviewResponse> callback) {
+        mMovieApi.getReviews(movieId, BuildConfig.MOVIE_API_KEY, page)
+                .enqueue(callback);
+    }
+
+    /**
+     * Returns all trailers for a movie
+     *
+     * @param movieId  - Id of the movie to get trailers for
+     * @param page     - page of review, should be 1 first time
+     * @param callback - Callback to be invoked when request is done.
+     *                 May contain result or error from request.
+     */
+    public void getTrailers(int movieId, Callback<TrailerResponse> callback) {
+        mMovieApi.getTrailers(movieId, BuildConfig.MOVIE_API_KEY)
                 .enqueue(callback);
     }
 

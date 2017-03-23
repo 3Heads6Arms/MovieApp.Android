@@ -12,13 +12,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.anhhoang.popularmovies.data.Movie;
+import com.anhhoang.popularmovies.model.Movie;
 import com.anhhoang.popularmovies.utils.MoviePosterSizeEnum;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 
 import java.util.List;
 
@@ -55,6 +52,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
         holder.mTitleTv.setText(movie.getTitle());
         holder.mRateTv.setText(String.valueOf(movie.getVoteAverage()));
+        holder.itemView.setTag(movie);
 
         if (movie.getPosterPath() != null) {
             String posterUrl = MoviesApiService.getMovieImageUrl(movie.getPosterPath(), MoviePosterSizeEnum.w185);
@@ -76,6 +74,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         notifyDataSetChanged();
     }
 
+    public List<Movie> getMovieData() {
+        return mMovieData;
+    }
+
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.iv_poster)
         public ImageView mPosterIv;
@@ -93,8 +95,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
         @Override
         public void onClick(View v) {
-            int position = getAdapterPosition();
-            Movie movie = mMovieData.get(position);
+            Movie movie = (Movie) v.getTag();
 
             mOnClickListener.onClick(movie);
         }

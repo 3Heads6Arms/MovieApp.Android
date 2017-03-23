@@ -3,9 +3,13 @@
     <item
         android:id="@+id/action_sort_popularity"
         android:orderInCategory="1"
-        android:title="Popular" />
+        android:title="@string/popular" />
     <item
         android:id="@+id/action_sort_top_rated"
         android:orderInCategory="2"
-        android:title="Top Rated" />
+        android:title="@string/top_rated" />
+    <item
+        android:id="@+id/action_favorite"
+        android:orderInCategory="3"
+        android:title="@string/favorite_movies" />
 </menu>
