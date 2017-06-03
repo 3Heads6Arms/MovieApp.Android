@@ -24,6 +24,7 @@ import com.anhhoang.popularmovies.model.MovieResponse;
 import com.anhhoang.popularmovies.utils.FavoriteMovieUtils;
 import com.anhhoang.popularmovies.utils.MoviesApiService;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +69,8 @@ public class MoviesActivity extends AppCompatActivity {
                 List<Movie> movieData = response.body().getResults();
 
                 mMoviesAdapter.setMovieData(movieData);
+            } else if(response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                // TODO:
             }
         }
 
