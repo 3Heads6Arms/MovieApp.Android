@@ -1,9 +1,2 @@
-.idea
-*.iml
-local.properties
-build
-.gradle
-# Eclipse project files
-.project
-.settings/
-.classpath
+# mac system file
+**/.DS_Store
