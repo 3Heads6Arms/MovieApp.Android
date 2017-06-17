@@ -3,14 +3,13 @@ package com.anhhoang.popularmovies.data
 import android.content.ContentProvider
 import android.content.ContentUris
 import android.content.ContentValues
-import android.content.Context
 import android.content.UriMatcher
 import android.database.Cursor
 import android.database.SQLException
-import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import android.provider.BaseColumns._ID
 
-import com.anhhoang.popularmovies.data.FavoriteMovieContract.FavoriteMovieEntry.TABLE_NAME
+import com.anhhoang.popularmovies.data.FavoriteMovieContract.FavoriteMovieEntry.Companion.TABLE_NAME
 
 /*
  * Copyright (C) 2013 The Android Open Source Project
@@ -21,11 +20,10 @@ import com.anhhoang.popularmovies.data.FavoriteMovieContract.FavoriteMovieEntry.
  */
 
 class FavoriteMovieContentProvider : ContentProvider() {
-    private var mFavoriteMovieDbHelper: FavoriteMovieDbHelper? = null
+    private lateinit var mFavoriteMovieDbHelper: FavoriteMovieDbHelper
 
     override fun onCreate(): Boolean {
         // Not creating global Realm Db access, because we want to close realm instance each time in case of memory leaking
-        val context = context
         mFavoriteMovieDbHelper = FavoriteMovieDbHelper(context)
         return true
     }
@@ -33,7 +31,7 @@ class FavoriteMovieContentProvider : ContentProvider() {
     override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
         // Due to limitation of Realm.io we won't be able to use Projection, selection and etc.
         val match = sUriMatcher.match(uri)
-        val db = mFavoriteMovieDbHelper!!.readableDatabase
+        val db = mFavoriteMovieDbHelper.readableDatabase
         val cursor: Cursor
         when (match) {
             FAVORITE_MOVIES -> cursor = db.query(
@@ -48,14 +46,14 @@ class FavoriteMovieContentProvider : ContentProvider() {
                 cursor = db.query(
                         TABLE_NAME,
                         projection,
-                        FavoriteMovieContract.FavoriteMovieEntry._ID + "=?",
+                        _ID + "=?",
                         arrayOf(id.toString()), null, null, null
                 )
             }
             else -> throw UnsupportedOperationException("Not supported uri: " + uri)
         }
 
-        cursor.setNotificationUri(context!!.contentResolver, uri)
+        cursor.setNotificationUri(context.contentResolver, uri)
         return cursor
     }
 
@@ -65,8 +63,8 @@ class FavoriteMovieContentProvider : ContentProvider() {
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
         val match = sUriMatcher.match(uri)
-        var uriResult: Uri? = null
-        val database = mFavoriteMovieDbHelper!!.writableDatabase
+        val uriResult: Uri?
+        val database = mFavoriteMovieDbHelper.writableDatabase
         when (match) {
             FAVORITE_MOVIES -> {
                 val id = database.insert(TABLE_NAME, null, values)
@@ -78,25 +76,25 @@ class FavoriteMovieContentProvider : ContentProvider() {
             }
             else -> throw UnsupportedOperationException("Not supported uri: " + uri)
         }
-        context!!.contentResolver.notifyChange(uri, null)
+        context.contentResolver.notifyChange(uri, null)
 
         return uriResult
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         val match = sUriMatcher.match(uri)
-        var result = 0
-        val db = mFavoriteMovieDbHelper!!.writableDatabase
+        val result: Int
+        val db = mFavoriteMovieDbHelper.writableDatabase
         when (match) {
             FAVORITE_MOVIES_WITH_ID -> {
                 val id = uri.lastPathSegment
 
-                result = db.delete(TABLE_NAME, FavoriteMovieContract.FavoriteMovieEntry._ID + "=?", arrayOf(id))
+                result = db.delete(TABLE_NAME, _ID + "=?", arrayOf(id))
             }
             else -> throw UnsupportedOperationException("Not supported uri: " + uri)
         }
         if (result != 0) {
-            context!!.contentResolver.notifyChange(uri, null)
+            context.contentResolver.notifyChange(uri, null)
         }
 
         return result

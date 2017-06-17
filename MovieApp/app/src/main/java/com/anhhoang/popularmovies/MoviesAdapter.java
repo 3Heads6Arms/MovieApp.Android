@@ -57,7 +57,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         holder.itemView.setTag(movie);
 
         if (movie.getPosterPath() != null) {
-            String posterUrl = MoviesApiService.getMovieImageUrl(movie.getPosterPath(), MoviePosterSizeEnum.w185);
+            String posterUrl = MoviesApiService.Companion.getMovieImageUrl(movie.getPosterPath(), MoviePosterSizeEnum.w185);
             Glide.with(mContext)
                     .load(posterUrl)
                     .placeholder(R.drawable.ic_poster_placeholder)

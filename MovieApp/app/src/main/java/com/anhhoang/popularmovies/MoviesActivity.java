@@ -57,7 +57,7 @@ public class MoviesActivity extends AppCompatActivity {
         @Override
         public void onClick(Movie movie) {
             Intent movieDetailIntent = new Intent(MoviesActivity.this, MovieDetailActivity.class);
-            movieDetailIntent.putExtra(MovieDetailActivity.MOVIE_DATA, movie);
+            movieDetailIntent.putExtra(MovieDetailActivity.Companion.getMOVIE_DATA(), movie);
             startActivityForResult(movieDetailIntent, REQUEST_CODE);
         }
     };
@@ -98,7 +98,7 @@ public class MoviesActivity extends AppCompatActivity {
 
         mMoviesRv.setLayoutManager(mLayoutManager);
         mMoviesRv.setAdapter(mMoviesAdapter);
-        mMoviesApiService = MoviesApiService.getService();
+        mMoviesApiService = MoviesApiService.Companion.getService();
 
         if (savedInstanceState == null) {
             mLoadingIndicatorPb.setVisibility(View.VISIBLE);
@@ -174,7 +174,7 @@ public class MoviesActivity extends AppCompatActivity {
                             null,
                             null,
                             null);
-                    List<Movie> movies = FavoriteMovieUtils.parse(cursor);
+                    List<Movie> movies = FavoriteMovieUtils.INSTANCE.parse(cursor);
                     if (movies != null && movies.size() > 0) {
                         mMoviesAdapter.getMovieData()
                                 .add(movies.get(0));
@@ -199,7 +199,7 @@ public class MoviesActivity extends AppCompatActivity {
                 null,
                 null,
                 null);
-        List<Movie> movies = FavoriteMovieUtils.parse(cursor);
+        List<Movie> movies = FavoriteMovieUtils.INSTANCE.parse(cursor);
         mLoadingIndicatorPb.setVisibility(View.INVISIBLE);
         mMoviesAdapter.setMovieData(movies);
     }
